@@ -16,10 +16,26 @@
 // Function Definitions
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);      // sets framebuffer size
 void getInput(GLFWwindow* window);                                              // Receive input from user
+void checkCompileError(unsigned int shader_id);                                 // Checks Compilation ERRORS
+void checkLinkingError(unsigned int program_id);                                // Checks Linking ERRORS
 
 // Constants
 const unsigned int SCREEN_WIDTH = 1000;
 const unsigned int SCREEN_HEIGHT = 750;
+
+// Temporary Vertex and Pixel Shaders
+const char *vertexShaderSource = "#version 330 core\n"
+                                 "layout (location = 0) in vec3 aPos;\n"
+                                 "void main()\n"
+                                 "{\n"
+                                 "   gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
+                                 "}\0";
+const char *fragmentShaderSource = "#version 330 core\n"
+                                   "out vec4 FragColor;\n"
+                                   "void main()\n"
+                                   "{\n"
+                                   "   FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
+                                   "}\n\0";
 
 
 int main() {
@@ -52,17 +68,81 @@ int main() {
         return -1;
     }
 
+
+    // ########## BUILD, COMPILE AND LINK SHADER PROGRAM ##########
+
+    // ##### VERTEX SHADER #####
+    unsigned int vertex_shader = glCreateShader(GL_VERTEX_SHADER);
+    glShaderSource(vertex_shader, 1, &vertexShaderSource, NULL);
+    glCompileShader(vertex_shader);
+    checkCompileError(vertex_shader);
+
+    // ##### PIXEL SHADER #####
+    unsigned int fragment_shader = glCreateShader(GL_FRAGMENT_SHADER);
+    glShaderSource(fragment_shader, 1, &fragmentShaderSource, NULL);
+    glCompileShader(fragment_shader);
+    checkCompileError(fragment_shader);
+
+    // ##### LINKING SHADERS #####
+    unsigned int shader_program = glCreateProgram();
+    glAttachShader(shader_program, vertex_shader);
+    glAttachShader(shader_program, fragment_shader);
+    glLinkProgram(shader_program);
+    checkLinkingError(shader_program);
+
+    // ##### DELETING SHADERS #####
+    glDeleteShader(vertex_shader);
+    glDeleteShader(fragment_shader);
+
+
+    // ########## SETTING UP VERTEX DATA AND VERTEX ATTRIBUTES ##########
+    float vertices[] = {
+            -0.5f, -0.5f, 0.0f, // left
+            0.5f, -0.5f, 0.0f, // right
+            0.0f,  0.5f, 0.0f  // top
+    };
+
+    unsigned int VBO, VAO;
+    glGenVertexArrays(1, &VAO);
+    glGenBuffers(1, &VBO);
+
+    // bind vertex array object, bind and set Buffers
+    glBindVertexArray(VAO);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3*sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
+
+    // unbinding buffer
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
+
     // ########## The Render Loop ##########
     while(!glfwWindowShouldClose(window))
     {
+        // Taking Input
         getInput(window);
 
+        // render
         glClearColor(0.1f, 0.2f, 0.3f, 0.9f);
         glClear(GL_COLOR_BUFFER_BIT);
 
-        glfwPollEvents();
+        // Drawing
+        glUseProgram(shader_program);
+        glBindVertexArray(VAO);
+        glDrawArrays(GL_TRIANGLES, 0, 3);
+
+        // glfw : swap buffers and poll IO events
         glfwSwapBuffers(window);
+        glfwPollEvents();
     }
+
+    // DEALLOCATE ALL RESOURCES
+    glDeleteVertexArrays(1, &VAO);
+    glDeleteBuffers(1, &VBO);
+    glDeleteProgram(shader_program);
+
+    // TERMINATE ALL ALLOCATED RESOURCES TO GLFW
     glfwTerminate();
     return 0;
 }
@@ -79,4 +159,28 @@ void getInput(GLFWwindow* window)
 {
     if(glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
+}
+
+void checkCompileError(unsigned int shader_id)
+{
+    int success;
+    char info_log[512];
+    glGetShaderiv(shader_id, GL_COMPILE_STATUS, &success);
+    if(!success)
+    {
+        glGetShaderInfoLog(shader_id, 512, NULL, info_log);
+        std::cout << "COMPILATION ERROR : " << info_log << std::endl;
+    }
+}
+
+void checkLinkingError(unsigned int program_id)
+{
+    int success;
+    char info_log[512];
+    glGetShaderiv(program_id, GL_LINK_STATUS, &success);
+    if(!success)
+    {
+        glGetShaderInfoLog(program_id, 512, NULL, info_log);
+        std::cout << "COMPILATION ERROR : " << info_log << std::endl;
+    }
 }
