@@ -9,6 +9,7 @@
 // * // ########## <Comment> ##########
 
 #include <iostream>
+#include <math.h>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <KHR/khrplatform.h>
@@ -32,9 +33,10 @@ const char *vertexShaderSource = "#version 330 core\n"
                                  "}\0";
 const char *fragmentShaderSource = "#version 330 core\n"
                                    "out vec4 FragColor;\n"
+                                   "uniform vec4 color;\n"
                                    "void main()\n"
                                    "{\n"
-                                   "   FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
+                                   "   FragColor = color;\n"
                                    "}\n\0";
 
 
@@ -95,7 +97,7 @@ int main() {
     glDeleteShader(fragment_shader);
 
 
-    // ########## SETTING UP VERTEX DATA AND VERTEX ATTRIBUTES ##########
+    // ########## SETTING UP VERTEX DATA, VERTEX BUFFERS AND VERTEX ARRAY OBJECTS ##########
     float vertices[] = {
             0.5f,  0.5f, 0.0f,  // top right
             0.5f, -0.5f, 0.0f,  // bottom right
@@ -129,7 +131,7 @@ int main() {
     glBindVertexArray(0);
 
     // uncomment this call to draw in wireframe polygons.
-    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
     // ########## The Render Loop ##########
     while(!glfwWindowShouldClose(window))
@@ -143,6 +145,14 @@ int main() {
 
         // Drawing
         glUseProgram(shader_program);
+
+        // updating the color
+        float time = glfwGetTime();
+        // float r = sin(time)/2.0f + 0.5f;
+        float color[4] = {sin(time)/2.0f + 0.5f, sin(time + 1)/2.0f + 0.5f, sin(time + 2)/2.0f + 0.5f, sin(time + 3)/2.0f + 0.5f};
+        int color_uniform_location = glGetUniformLocation(shader_program, "color");
+        glUniform4f(color_uniform_location, color[0], color[1], color[2], color[3]);
+
         glBindVertexArray(VAO);
         //glDrawArrays(GL_TRIANGLES, 0, 3);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
