@@ -13,6 +13,10 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
 #include "Shader.h"
 #include <iostream>
 
@@ -167,8 +171,22 @@ int main() {
         glActiveTexture(GL_TEXTURE1);
         glBindTexture(GL_TEXTURE_2D, texture2);
 
+        // ---------- BOX 1 ----------
+        // Apply Transform
+        glm::mat4 transformation = glm::mat4(1.0f); // Identity Matrix
+        transformation = glm::translate(transformation, glm::vec3(0.5f, 0.2f, 0.4f));
+        transformation = glm::rotate(transformation, (float)glfwGetTime(), glm::vec3(1.0f, 1.0f, 1.0f));
+        shader.setMat4("transformation", transformation);
         // Drawing
-        shader.use();
+        glBindVertexArray(VAO);
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+
+        // ---------- BOX 2 ----------
+        glm::mat4 transform2 = glm::mat4 (1.0f);
+        transform2 = glm::translate(transform2, glm::vec3(-0.5f, 0.5f, 0.0f));
+        float scale_factor = std::sin(glfwGetTime())/2.0f + 0.5;
+        transform2 = glm::scale(transform2, glm::vec3(scale_factor, scale_factor, 0.0f));
+        shader.setMat4("transformation", transform2);
         glBindVertexArray(VAO);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
