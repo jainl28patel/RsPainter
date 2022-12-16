@@ -58,6 +58,8 @@ int main() {
         return -1;
     }
 
+    // ########## ENABLING Z-BUFFER ##########
+    glEnable(GL_DEPTH_TEST);
 
     // ########## BUILD, COMPILE AND LINK SHADER PROGRAM ##########
 
@@ -188,7 +190,7 @@ int main() {
 
         // render
         glClearColor(0.1f, 0.2f, 0.3f, 0.9f);
-        glClear(GL_COLOR_BUFFER_BIT);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, texture1);
