@@ -181,14 +181,18 @@ int main() {
         glBindVertexArray(VAO);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
-        // ---------- BOX 2 ----------
-        glm::mat4 transform2 = glm::mat4 (1.0f);
-        transform2 = glm::translate(transform2, glm::vec3(-0.5f, 0.5f, 0.0f));
-        float scale_factor = std::sin(glfwGetTime())/2.0f + 0.5;
-        transform2 = glm::scale(transform2, glm::vec3(scale_factor, scale_factor, 0.0f));
-        shader.setMat4("transformation", transform2);
-        glBindVertexArray(VAO);
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+        // Creating Transformation Matrix
+        glm::mat4 model = glm::mat4 (1.0f);
+        glm::mat4 view = glm::mat4 (1.0f);
+        glm::mat4 projection = glm::mat4 (1.0f);
+
+        model = glm::rotate(model, glm::radians(-60.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+        view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
+        projection = glm::perspective(glm::radians(45.0f), (float)SCREEN_WIDTH/SCREEN_HEIGHT, 0.1f, 100.0f);
+
+        shader.setMat4("model", model);
+        shader.setMat4("view", view);
+        shader.setMat4("projection", projection);
 
         // glfw : swap buffers and poll IO events
         glfwSwapBuffers(window);
