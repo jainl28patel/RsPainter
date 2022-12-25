@@ -8,17 +8,7 @@
 // * Class name    => PascalCase
 // * // ########## <Comment> ##########
 
-#include <glad/glad.h>
-#include <GLFW/glfw3.h>
-#define STB_IMAGE_IMPLEMENTATION
-#include <stb_image.h>
-
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
-
-#include "Shader.h"
-#include <iostream>
+#include "main.h"
 
 // Function Definitions
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);      // sets framebuffer size
@@ -41,6 +31,7 @@ float pitch =  0.0f;
 float lastX =  800.0f / 2.0;
 float lastY =  600.0 / 2.0;
 float fov   =  45.0f;
+float scrollback_sensitivity = 0.3;
 
 // Time Variables
 float delta_time = 0.0f;
@@ -162,57 +153,10 @@ int main() {
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
     glEnableVertexAttribArray(1);
 
-    // ########## LOAD AND CREATE TEXTURE ##########
-    unsigned int texture1, texture2;
-    // ---------- TEXTURE 1 ----------
-    glGenTextures(1, &texture1);
-    glBindTexture(GL_TEXTURE_2D, texture1);
-
-    // Wrapping parameters
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    // Filtering Parameters
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-    int height, width, nrChannels;
-    unsigned char* data = stbi_load(std::filesystem::path("../resources/container.jpg").c_str(), &width, &height, &nrChannels, 0);
-    if(data)
-    {
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-        glGenerateMipmap(GL_TEXTURE_2D);
-    }
-    else
-    {
-        std::cout << "Failed to load texture" << std::endl;
-    }
-    stbi_image_free(data);
-
-    // ---------- TEXTURE 2 ----------
-    glGenTextures(1, &texture2);
-    glBindTexture(GL_TEXTURE_2D, texture2);
-
-    // Wrapping Parameters
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    // Filtering Parameters
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-    data = stbi_load(std::filesystem::path("../resources/awesomeface.png").c_str(), &width, &height, &nrChannels, 0);
-    if(data)
-    {
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
-        glGenerateMipmap(GL_TEXTURE_2D);
-    }
-    else
-    {
-        std::cout << "Failed to load texture" << std::endl;
-    }
-    stbi_image_free(data);
-
     // uncomment this call to draw in wireframe polygons.
     // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    Texture tex1("../resources/awesomeface.png", GL_RGBA);
+    Texture tex2("../resources/container.jpg", GL_RGB);
     shader.use();
     shader.setInt("texture1", 0);
     shader.setInt("texture2", 1);
@@ -233,10 +177,8 @@ int main() {
         glClearColor(0.1f, 0.2f, 0.3f, 0.9f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, texture1);
-        glActiveTexture(GL_TEXTURE1);
-        glBindTexture(GL_TEXTURE_2D, texture2);
+        tex1.bind(0);
+        tex2.bind(1);
 
         shader.use();
 
@@ -247,7 +189,7 @@ int main() {
         glm::mat4 projection    = glm::mat4(1.0f);
 
         view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
-        projection = glm::perspective(glm::radians(45.0f), (float)SCREEN_WIDTH / (float)SCREEN_HEIGHT, 0.1f, 100.0f);
+        projection = glm::perspective(glm::radians(fov), (float)SCREEN_WIDTH / (float)SCREEN_HEIGHT, 0.1f, 100.0f);
 
         shader.setMat4("view", view);
         shader.setMat4("projection", projection);
@@ -347,7 +289,7 @@ void mouse_callback(GLFWwindow* window, double xposIn, double yposIn)
 // ----------------------------------------------------------------------
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 {
-    fov -= (float)yoffset;
+    fov -= (float)yoffset*(scrollback_sensitivity);
     if (fov < 1.0f)
         fov = 1.0f;
     if (fov > 45.0f)
