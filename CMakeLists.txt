@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.24)
 project(Raspainter)
 
 set(CMAKE_CXX_STANDARD 17)
-add_executable(Raspainter main.cpp glad.c Shader.h Texture.h main.h)
+add_executable(Raspainter main.cpp glad.c Shader.h Texture.h main.h Camera.h)
 
 #Adding the GLFW header file and library to the project
 target_include_directories(Raspainter PUBLIC /Library/Developer/CommandLineTools/usr/include/OpenGL/include)

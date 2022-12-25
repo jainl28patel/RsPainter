@@ -16,6 +16,7 @@
 
 #include "Shader.h"
 #include "Texture.h"
+#include "Camera.h"
 #include <iostream>
 
 #endif //RASPAINTER_MAIN_H
