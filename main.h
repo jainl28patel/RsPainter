@@ -17,6 +17,7 @@
 #include "Shader.h"
 #include "Texture.h"
 #include "Camera.h"
+#include "vertices.h"
 #include <iostream>
 #include <vector>
 
