@@ -75,7 +75,7 @@ int main() {
 
     // ########## BUILD, COMPILE AND LINK SHADER PROGRAM ##########
 
-    Shader shader("../vertex.txt","../fragment.txt");
+    Shader shader("../Shaders/vertex.vs","../Shaders/fragment.fs");
 
     // ########## SETTING UP VERTEX DATA AND VERTEX ATTRIBUTES ##########
     float vertices[] = {
