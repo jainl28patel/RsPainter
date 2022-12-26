@@ -98,8 +98,8 @@ public:
         Zoom -= (float)yoffset*SCROLL_SENSITIVITY;
         if (Zoom < 1.0f)
             Zoom = 1.0f;
-        if (Zoom > 45.0f)
-            Zoom = 45.0f;
+        if (Zoom > 90.0f)
+            Zoom = 90.0f;
     }
 
 private:
