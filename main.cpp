@@ -76,9 +76,9 @@ int main()
 
     // build and compile our shader zprogram
     // ------------------------------------
-    //    Shader shader("../Shaders/vertex.vs","../Shaders/fragment.fs");
-//    Shader light_shader("../Shaders/light.vs", "../Shaders/light.fs");
+    // BOXES
     Shader lightingShader("../Shaders/vertex.vs","../Shaders/fragment.fs");
+    // LIGHT SOURCE
     Shader lightCubeShader("../Shaders/light.vs", "../Shaders/light.fs");
 
     // set up vertex data (and buffer(s)) and configure vertex attributes
@@ -139,19 +139,20 @@ int main()
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-//        // Light position
-//        lightPos.x = (float)sin(glfwGetTime());
-//        lightPos.z = (float)cos(glfwGetTime());
-
         // be sure to activate shader when setting uniforms/drawing objects
         lightingShader.use();
         lightingShader.setVec3("light.position", lightPos);
+        lightingShader.setVec3("light.direction", -0.2f, -1.0f, -0.3f);
         lightingShader.setVec3("cameraPos", camera.Position);
 
         // light properties
         lightingShader.setVec3("light.ambient", 0.2f, 0.2f, 0.2f);
         lightingShader.setVec3("light.diffuse", 0.5f, 0.5f, 0.5f);
         lightingShader.setVec3("light.specular", 1.0f, 1.0f, 1.0f);
+        lightingShader.setFloat("light.constant", 1.0f);
+        lightingShader.setFloat("light.linear", 0.09f);
+        lightingShader.setFloat("light.quadratic", 0.032f);
+
 
         // material properties
         lightingShader.setVec3("material.specular", 0.5f, 0.5f, 0.5f);
@@ -174,7 +175,14 @@ int main()
 
         // render the cube
         glBindVertexArray(cubeVAO);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
+        for(unsigned int i = 0 ; i < 10; i++) {
+            glm::mat4 model = glm::mat4(1.0f);
+            model = glm::translate(model, cubePositions[i]);
+            float angle = 20.0f * i;
+            model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
+            lightingShader.setMat4("model", model);
+            glDrawArrays(GL_TRIANGLES, 0, 36);
+        }
 
 
         // also draw the lamp object
