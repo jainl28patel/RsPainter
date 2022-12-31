@@ -4,13 +4,6 @@
 
 #ifndef RASPAINTER_SHADER_H
 #define RASPAINTER_SHADER_H
-
-#include <glad/glad.h>
-#include <iostream>
-#include <fstream>
-#include <string>
-#include <sstream>
-
 using namespace std;
 
 class Shader

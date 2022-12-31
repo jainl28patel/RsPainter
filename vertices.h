@@ -70,4 +70,12 @@ glm::vec3 pointLightPositions[] = {
         glm::vec3( 0.0f,  0.0f, -3.0f)
 };
 
+glm::vec3 pointLightColors[] = {
+        glm::vec3(0.4f, 0.7f, 0.1f),
+        glm::vec3(0.4f, 0.7f, 0.1f),
+        glm::vec3(0.4f, 0.7f, 0.1f),
+        glm::vec3(0.4f, 0.7f, 0.1f)
+};
+
+
 #endif //RASPAINTER_VERTICES_H
